@@ -129,7 +129,7 @@ function App() {
       <RefineSnackbarProvider>
         <Refine
           dataProvider={dataProvider(
-            "https://refine-dashboard-app.onrender.com"
+            "https://refine-dashboard-app.onrender.com/api/v1"
           )}
           notificationProvider={notificationProvider}
           ReadyPage={ReadyPage}
