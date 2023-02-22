@@ -1,6 +1,6 @@
-import React from "react";
+import React from "react"
 
-import { Refine, AuthProvider } from "@pankod/refine-core";
+import { Refine, AuthProvider } from "@pankod/refine-core"
 import {
   notificationProvider,
   RefineSnackbarProvider,
@@ -8,24 +8,24 @@ import {
   GlobalStyles,
   ReadyPage,
   ErrorComponent,
-} from "@pankod/refine-mui";
+} from "@pankod/refine-mui"
 import {
   AccountCircleOutlined,
   ChatBubbleOutline,
   PeopleAltOutlined,
   StarOutlineRounded,
   VillaOutlined,
-} from '@mui/icons-material'
+} from "@mui/icons-material"
 
-import dataProvider from "@pankod/refine-simple-rest";
-import routerProvider from "@pankod/refine-react-router-v6";
-import axios, { AxiosRequestConfig } from "axios";
-import { Title, Sider, Layout, Header } from "components/layout";
-import { ColorModeContextProvider } from "contexts";
-import { CredentialResponse } from "interfaces/google";
-import { parseJwt } from "utils/parse-jwt";
+import dataProvider from "@pankod/refine-simple-rest"
+import routerProvider from "@pankod/refine-react-router-v6"
+import axios, { AxiosRequestConfig } from "axios"
+import { Title, Sider, Layout, Header } from "components/layout"
+import { ColorModeContextProvider } from "contexts"
+import { CredentialResponse } from "interfaces/google"
+import { parseJwt } from "utils/parse-jwt"
 
-import { 
+import {
   Login,
   Home,
   Agents,
@@ -35,89 +35,92 @@ import {
   CreateProperty,
   AgentProfile,
   EditProperty,
-} from "pages";
+} from "pages"
 
-const axiosInstance = axios.create();
+const axiosInstance = axios.create()
 axiosInstance.interceptors.request.use((request: AxiosRequestConfig) => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("token")
   if (request.headers) {
-    request.headers["Authorization"] = `Bearer ${token}`;
+    request.headers["Authorization"] = `Bearer ${token}`
   } else {
     request.headers = {
       Authorization: `Bearer ${token}`,
-    };
+    }
   }
 
-  return request;
-});
+  return request
+})
 
 function App() {
   const authProvider: AuthProvider = {
     login: async ({ credential }: CredentialResponse) => {
-      const profileObj = credential ? parseJwt(credential) : null;
+      const profileObj = credential ? parseJwt(credential) : null
 
       if (profileObj) {
-        const response = await fetch('http://localhost:8080/api/v1/users', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: profileObj.name,
-            email: profileObj.email,
-            avatar: profileObj.picture,
-          })
-        })
+        const response = await fetch(
+          "https://refine-dashboard-app.onrender.com/api/v1/users",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: profileObj.name,
+              email: profileObj.email,
+              avatar: profileObj.picture,
+            }),
+          }
+        )
 
-        const data = await response.json();
+        const data = await response.json()
 
-        if(response.status === 200) {
+        if (response.status === 200) {
           localStorage.setItem(
             "user",
             JSON.stringify({
               ...profileObj,
               avatar: profileObj.picture,
-              userid: data._id
+              userid: data._id,
             })
-          );
+          )
         } else {
           return Promise.reject()
         }
       }
-      localStorage.setItem("token", `${credential}`);
+      localStorage.setItem("token", `${credential}`)
 
-      return Promise.resolve();
+      return Promise.resolve()
     },
     logout: () => {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("token")
 
       if (token && typeof window !== "undefined") {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        axios.defaults.headers.common = {};
+        localStorage.removeItem("token")
+        localStorage.removeItem("user")
+        axios.defaults.headers.common = {}
         window.google?.accounts.id.revoke(token, () => {
-          return Promise.resolve();
-        });
+          return Promise.resolve()
+        })
       }
 
-      return Promise.resolve();
+      return Promise.resolve()
     },
     checkError: () => Promise.resolve(),
     checkAuth: async () => {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("token")
 
       if (token) {
-        return Promise.resolve();
+        return Promise.resolve()
       }
-      return Promise.reject();
+      return Promise.reject()
     },
 
     getPermissions: () => Promise.resolve(),
     getUserIdentity: async () => {
-      const user = localStorage.getItem("user");
+      const user = localStorage.getItem("user")
       if (user) {
-        return Promise.resolve(JSON.parse(user));
+        return Promise.resolve(JSON.parse(user))
       }
     },
-  };
+  }
 
   return (
     <ColorModeContextProvider>
@@ -125,7 +128,9 @@ function App() {
       <GlobalStyles styles={{ html: { WebkitFontSmoothing: "auto" } }} />
       <RefineSnackbarProvider>
         <Refine
-          dataProvider={dataProvider("http://localhost:8080/api/v1")}
+          dataProvider={dataProvider(
+            "https://refine-dashboard-app.onrender.com"
+          )}
           notificationProvider={notificationProvider}
           ReadyPage={ReadyPage}
           catchAll={<ErrorComponent />}
@@ -156,7 +161,7 @@ function App() {
             },
             {
               name: "my-profile",
-              options: { label: 'My Profile '},
+              options: { label: "My Profile " },
               list: MyProfile,
               icon: <AccountCircleOutlined />,
             },
@@ -172,7 +177,7 @@ function App() {
         />
       </RefineSnackbarProvider>
     </ColorModeContextProvider>
-  );
+  )
 }
 
-export default App;
+export default App
